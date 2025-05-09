@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+e<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -29,16 +29,33 @@
 
   <script>
     async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-      if (error) {
-        alert("Login failed: " + error.message);
-      } else {
-        window.location.href = "home.html";
-      }
-    }
+  if (!email || !password) {
+    alert("Please provide an email and password.");
+    return;
+  }
+
+  // Get user data based on email
+  const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
+
+  if (error) {
+    alert("Login failed: " + error.message);
+    console.error("Error:", error);
+    return;
+  }
+
+  // Compare hashed password
+  const passwordMatch = await bcrypt.compare(password, user.password_hash);
+  if (passwordMatch) {
+    alert("Login successful!");
+    window.location.href = "home.html";
+  } else {
+    alert("Incorrect email or password.");
+  }
+}
+
 
     async function signup() {
   const email = document.getElementById('email').value;
