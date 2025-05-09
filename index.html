@@ -41,16 +41,29 @@
     }
 
     async function signup() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const { error } = await supabase.auth.signUp({ email, password });
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-      if (error) {
-        alert("Signup failed: " + error.message);
-      } else {
-        alert("Signup successful! Check your email to confirm.");
-      }
-    }
+  if (!email || !password) {
+    alert("Please provide an email and password.");
+    return;
+  }
+
+  // Hash the password (using bcrypt.js or other libraries)
+  const hashedPassword = await bcrypt.hash(password, 10);  // Adjust rounds as needed
+
+  const { data, error } = await supabase.from('users').insert([
+    { email, password_hash: hashedPassword }
+  ]);
+
+  if (error) {
+    alert("Signup failed: " + error.message);
+    console.error("Error:", error);
+  } else {
+    alert("Signup successful!");
+    window.location.href = "home.html";
+  }
+}
   </script>
 </body>
 </html>
